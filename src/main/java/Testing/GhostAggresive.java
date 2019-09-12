@@ -21,12 +21,28 @@ public class GhostAggresive extends GhostController {
     }
     @Override
     public EnumMap<Constants.GHOST, Constants.MOVE> getMove(Game game, long timeDue) {
+        moves.clear();
 
-        for(Constants.GHOST ghostType : Constants.GHOST.values()){
-            if(game.doesGhostRequireAction(ghostType)){
+        for (Constants.GHOST ghostType : Constants.GHOST.values()) {
+
+            if (game.doesGhostRequireAction(ghostType)) {
                 Constants.MOVE last_move = last_moves.get(ghostType);
+                int to = game.getPacmanCurrentNodeIndex();
+                int from = game.getGhostCurrentNodeIndex(ghostType);
+
+                Constants.MOVE next_move;
+
+                try {
+                    next_move = game.getApproximateNextMoveTowardsTarget(from, to, last_move, Constants.DM.MANHATTAN);
+                }catch (NullPointerException e){
+                    next_move = Constants.MOVE.NEUTRAL;
+                }
+                moves.put(ghostType, next_move);
+                last_moves.put(ghostType,next_move);
             }
         }
-        game.getApproximateNextMoveTowardsTarget();
+
+        return moves;
     }
+
 }
