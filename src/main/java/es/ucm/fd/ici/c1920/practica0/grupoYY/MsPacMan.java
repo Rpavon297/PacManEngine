@@ -64,9 +64,9 @@ public class MsPacMan extends PacmanController {
         }
 
         if(nearestGhost != null)
-            last_move = game.getNextMoveAwayFromTarget(from, to, last_move, Constants.DM.MANHATTAN);
+            last_move = game.getNextMoveAwayFromTarget(from, to, Constants.DM.MANHATTAN);
         else if(nearestEdibleGhost != null)
-            last_move = game.getApproximateNextMoveTowardsTarget(from, eto,last_move, Constants.DM.MANHATTAN);
+            last_move = game.getApproximateNextMoveTowardsTarget(from, eto, last_move, Constants.DM.MANHATTAN);
         else if(distp != -1)
             last_move = game.getApproximateNextMoveTowardsTarget(from, top, last_move, Constants.DM.MANHATTAN);
 
