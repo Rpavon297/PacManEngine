@@ -8,13 +8,10 @@ public class MsPacMan extends PacmanController {
 
     private Constants.MOVE last_move;
 
-    public MsPacMan(){
-        super();
-        last_move = Constants.MOVE.NEUTRAL;
-    }
-
     @Override
     public Constants.MOVE getMove(Game game, long timeDue) {
+        if(last_move == null)
+            last_move = Constants.MOVE.NEUTRAL;
         double limit = 20;
         int from = game.getPacmanCurrentNodeIndex();
 
@@ -59,6 +56,7 @@ public class MsPacMan extends PacmanController {
                 top = pp;
             }
         }
+
 
         if(nearestGhost != null)
             last_move = game.getNextMoveAwayFromTarget(from, to, Constants.DM.PATH);

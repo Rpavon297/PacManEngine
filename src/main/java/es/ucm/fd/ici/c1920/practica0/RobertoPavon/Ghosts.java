@@ -62,9 +62,6 @@ public class Ghosts extends GhostController {
                     moves.put(ghostType, move);
                 }
             }catch(Exception e){
-                System.out.println(e);
-                System.out.println( "bug: " + ghostType + " " + moves.get(ghostType) + " desde: "
-                        + game.getGhostCurrentNodeIndex(ghostType) + " a: " + to + " Movimientos: " + moves) ;
             }
         }
 

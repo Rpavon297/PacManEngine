@@ -1,13 +1,12 @@
-package Testing.Evo;
+package Testing.Evo.Algoritmo;
 
 import pacman.game.Constants;
 import pacman.game.Game;
-import pacman.game.internal.Ghost;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class Gramatica {
+public class GramaticaSMARTFLEE {
     /**
      *       <S> = <exp>
      *       <exp> = <pog2> <pog3> <ghost> <edible> <pill> <ppill> <arriba> <abajo> <dcha> <izda>
@@ -17,7 +16,7 @@ public class Gramatica {
      *               <pillX>     = if (pill cerca en direccion X) <exp> if(direccion Y) <exp> ...
      *
      */
-    private final int[] DEFAULT_SETTINGS = {2,10,200,10};
+    private final int[] DEFAULT_SETTINGS = {2,10,200,10000};
     private final int N_INST = 10;
     private final int HOLGURA = 2;
     private final Constants.DM DM = Constants.DM.PATH;
@@ -27,7 +26,7 @@ public class Gramatica {
     private int chaseDist;
     private int pillDist;
 
-    public Gramatica(){
+    public GramaticaSMARTFLEE(){
         wraps = 0;
         maxWraps = DEFAULT_SETTINGS[0];
         fleeDist = DEFAULT_SETTINGS[1];
@@ -35,7 +34,7 @@ public class Gramatica {
         pillDist = DEFAULT_SETTINGS[3];
     }
 
-    public Gramatica(int maxWraps, int fleeDist, int chaseDist, int pillDist){
+    public GramaticaSMARTFLEE(int maxWraps, int fleeDist, int chaseDist, int pillDist){
         this.wraps = 0;
         this.maxWraps = maxWraps;
         this.fleeDist = fleeDist;
@@ -65,7 +64,7 @@ public class Gramatica {
         return decode(codones, game, i, move, operativa);
     }
 
-    public int ghost(List<Double> codones, Game game, int i, Constants.MOVE move, boolean operativa){
+    public int flee(List<Double> codones, Game game, int i, Constants.MOVE move, boolean operativa){
         i++;
 
         if(!operativa){
@@ -208,12 +207,6 @@ public class Gramatica {
         if(!operativa){
             i = decode(codones, game, i, move, false);
             i++;
-            i = decode(codones, game, i, move, false);
-            i++;
-            i = decode(codones, game, i, move, false);
-            i++;
-            i = decode(codones, game, i, move, false);
-            i++;
             return decode(codones, game, i, move, false);
         }
 
@@ -223,19 +216,73 @@ public class Gramatica {
 
         for(Constants.GHOST ghostType : Constants.GHOST.values()){
             double ndist = game.getDistance(from, game.getGhostCurrentNodeIndex(ghostType),DM);
-            if(ndist < dist){
+            if(ndist < dist && game.isGhostEdible(ghostType)){
                 dist = ndist;
                 cercano = ghostType;
             }
         }
+
+        if(cercano != null){
+            i = decode(codones, game, i, game.getNextMoveTowardsTarget(from, game.getGhostCurrentNodeIndex(cercano),DM),operativa);
+            i++;
+            return decode(codones, game, i , move, false);
+        }else{
+            i = decode(codones, game, i, move, false);
+            i++;
+            return decode(codones, game, i , move, operativa);
+        }
     }
 
     public int pill(List<Double> codones, Game game, int i,Constants.MOVE move, boolean operativa){
-        return 0;
+        i++;
+        int pills[] = game.getActivePillsIndices();
+        double distp = -1;
+        int to = -1, from = game.getPacmanCurrentNodeIndex();
+
+        for(int p : pills){
+            double ndistp = game.getDistance(from,p, DM);
+
+            if(ndistp <= this.pillDist && (ndistp < distp || distp == -1)) {
+                distp = ndistp;
+                to = p;
+            }
+        }
+
+        if(to == -1){
+            i = decode(codones, game, i, move, false);
+            i++;
+            return decode(codones, game, i, move, operativa);
+        }else{
+            i = decode(codones, game, i, game.getNextMoveTowardsTarget(from, to, DM),operativa);
+            i++;
+            return decode(codones, game, i, move, false);
+        }
     }
 
     public int ppill(List<Double> codones, Game game, int i, Constants.MOVE move, boolean operativa){
-        return 0;
+        i++;
+        int pills[] = game.getActivePowerPillsIndices();
+        double distp = -1;
+        int to = -1, from = game.getPacmanCurrentNodeIndex();
+
+        for(int p : pills){
+            double ndistp = game.getDistance(from,p, DM);
+
+            if(ndistp <= this.pillDist && (ndistp < distp || distp == -1)) {
+                distp = ndistp;
+                to = p;
+            }
+        }
+
+        if(to == -1){
+            i = decode(codones, game, i, move, false);
+            i++;
+            return decode(codones, game, i, move, operativa);
+        }else{
+            i = decode(codones, game, i, game.getNextMoveTowardsTarget(from, to, DM),operativa);
+            i++;
+            return decode(codones, game, i, move, false);
+        }
     }
 
     public int decode(List<Double> codones, Game game, int i, Constants.MOVE move, boolean operativa){
@@ -253,7 +300,7 @@ public class Gramatica {
             case 1:
                 return pog3(codones, game, i, move, operativa);
             case 2:
-                return ghost(codones, game, i, move, operativa);
+                return flee(codones, game, i, move, operativa);
             case 3:
                 return edible(codones, game, i, move, operativa);
             case 4:
