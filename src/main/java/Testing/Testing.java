@@ -1,18 +1,10 @@
 package Testing;
 
-import es.ucm.fd.ici.c1920.practica0.grupoYY.Ghosts;
-import es.ucm.fd.ici.c1920.practica0.grupoYY.MsPacMan;
+import es.ucm.fd.ici.c1920.practica0.RobertoPavon.Ghosts;
+import es.ucm.fd.ici.c1920.practica0.RobertoPavon.MsPacMan;
 import pacman.Executor;
 import pacman.controllers.GhostController;
-import pacman.controllers.HumanController;
-import pacman.controllers.KeyBoardInput;
 import pacman.controllers.PacmanController;
-import pacman.game.Constants;
-import pacman.game.Game;
-import pacman.game.internal.Ghost;
-
-import java.util.EnumMap;
-import java.util.Random;
 
 public class Testing {
     public static void main(String[] args){

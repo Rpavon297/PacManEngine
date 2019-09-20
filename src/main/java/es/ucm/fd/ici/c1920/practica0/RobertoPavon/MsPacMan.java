@@ -1,11 +1,8 @@
-package es.ucm.fd.ici.c1920.practica0.grupoYY;
+package es.ucm.fd.ici.c1920.practica0.RobertoPavon;
 
-import pacman.controllers.Controller;
 import pacman.controllers.PacmanController;
 import pacman.game.Constants;
 import pacman.game.Game;
-
-import java.util.Random;
 
 public class MsPacMan extends PacmanController {
 
@@ -28,7 +25,7 @@ public class MsPacMan extends PacmanController {
         //Buscar el fantasma mas cercano y el fantasma comestible mas cercano
         for(Constants.GHOST ghostType : Constants.GHOST.values()){
             int nto = game.getGhostCurrentNodeIndex(ghostType);
-            double ndist = game.getDistance(from, nto, Constants.DM.MANHATTAN);
+            double ndist = game.getDistance(from, nto, Constants.DM.PATH);
 
                 if(!game.isGhostEdible(ghostType) && ndist < dist) {
                     dist = ndist;
@@ -49,14 +46,14 @@ public class MsPacMan extends PacmanController {
         int top = -1;
 
         for(int p : pills){
-            double ndistp = game.getDistance(from,p,last_move, Constants.DM.MANHATTAN);
+            double ndistp = game.getDistance(from,p,last_move, Constants.DM.PATH);
             if(ndistp < distp || distp == -1) {
                 distp = ndistp;
                 top = p;
             }
         }
         for(int pp : powerpills){
-            double ndistp = game.getDistance(from,pp,last_move, Constants.DM.MANHATTAN);
+            double ndistp = game.getDistance(from,pp,last_move, Constants.DM.PATH);
             if(ndistp < distp || distp == -1) {
                 distp = ndistp;
                 top = pp;
@@ -64,11 +61,11 @@ public class MsPacMan extends PacmanController {
         }
 
         if(nearestGhost != null)
-            last_move = game.getNextMoveAwayFromTarget(from, to, Constants.DM.MANHATTAN);
+            last_move = game.getNextMoveAwayFromTarget(from, to, Constants.DM.PATH);
         else if(nearestEdibleGhost != null)
-            last_move = game.getApproximateNextMoveTowardsTarget(from, eto, last_move, Constants.DM.MANHATTAN);
+            last_move = game.getApproximateNextMoveTowardsTarget(from, eto, last_move, Constants.DM.PATH);
         else if(distp != -1)
-            last_move = game.getApproximateNextMoveTowardsTarget(from, top, last_move, Constants.DM.MANHATTAN);
+            last_move = game.getApproximateNextMoveTowardsTarget(from, top, last_move, Constants.DM.PATH);
 
         return last_move;
     }

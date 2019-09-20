@@ -1,4 +1,4 @@
-package es.ucm.fd.ici.c1920.practica0.grupoYY;
+package es.ucm.fd.ici.c1920.practica0.RobertoPavon;
 
 import pacman.controllers.GhostController;
 import pacman.game.Constants;
@@ -21,6 +21,11 @@ public class Ghosts extends GhostController {
             for (Constants.GHOST ghostType : Constants.GHOST.values()) {
                 moves.put(ghostType, Constants.MOVE.NEUTRAL);
             }
+        }else{
+            for (Constants.GHOST ghostType : Constants.GHOST.values()) {
+                if(moves.get(ghostType) == null)
+                    moves.put(ghostType, Constants.MOVE.NEUTRAL);
+            }
         }
 
         int to = game.getPacmanCurrentNodeIndex();
@@ -37,17 +42,17 @@ public class Ghosts extends GhostController {
                     Constants.MOVE move = Constants.MOVE.NEUTRAL;
 
                     for (int pill : pp) {
-                        if (game.getDistance(to, pill, Constants.DM.MANHATTAN) < FLEE_DIST)
+                        if (game.getDistance(to, pill, Constants.DM.PATH) < FLEE_DIST)
                             flee = true;
                     }
                     if (flee)
                         move = game.getApproximateNextMoveAwayFromTarget(from, to, moves.get(ghostType),
-                                Constants.DM.MANHATTAN);
+                                Constants.DM.PATH);
                     else {
                         if (rnd.nextFloat() < 0.9) {
 
                             move = game.getApproximateNextMoveTowardsTarget(from, to, moves.get(ghostType),
-                                    Constants.DM.MANHATTAN);
+                                    Constants.DM.PATH);
 
 
                         }
@@ -57,7 +62,8 @@ public class Ghosts extends GhostController {
                     moves.put(ghostType, move);
                 }
             }catch(Exception e){
-                System.out.println("bug: " + ghostType + " " + moves.get(ghostType) + " desde: "
+                System.out.println(e);
+                System.out.println( "bug: " + ghostType + " " + moves.get(ghostType) + " desde: "
                         + game.getGhostCurrentNodeIndex(ghostType) + " a: " + to + " Movimientos: " + moves) ;
             }
         }
