@@ -11,7 +11,7 @@ import java.util.List;
 public class Gramatica extends PacmanController {
     /**
      *       <S> = <exp>
-     *       <exp> = <pog2> <pog3> <ghost> <edible> <pill> <ppill> <arriba> <abajo> <dcha> <izda>
+     *       <exp> = <pog2> <pog3> <flee> <edible> <pill> <ppill> <arriba> <abajo> <dcha> <izda>
      *
      *               <ghostX>    = if (fantasma cerca en direccion X) <exp> if(direccion Y) <exp> ...
      *               <edibleX>   = if (fantasma comestible cerca en direccion X) <exp> if(direccion Y) <exp> ...
@@ -96,6 +96,8 @@ public class Gramatica extends PacmanController {
             i++;
             i = decode(game, i,  false);
             i++;
+            i = decode(game, i,  false);
+            i++;
             return decode(game, i,  false);
         }
 
@@ -109,6 +111,23 @@ public class Gramatica extends PacmanController {
                 dist = ndist;
                 cercano = ghostType;
             }
+        }
+
+
+        //Si no hay fantasmas cerca
+        if(cercano == null){
+
+            i = decode(game, i,  operativa);
+            i++;
+            i = decode(game, i,  false);
+            i++;
+            i = decode(game, i,  false);
+            i++;
+            i = decode(game, i,  false);
+            i++;
+            i = decode(game, i,  false);
+            i++;
+            return decode(game, i,  false);
         }
 
         int fromx = game.getNodeXCood(from),
@@ -127,12 +146,16 @@ public class Gramatica extends PacmanController {
                 i++;
                 i = decode(game, i,  false);
                 i++;
+                i = decode(game, i,  false);
+                i++;
                 i = decode(game, i,  operativa);
                 i++;
                 return decode(game, i,  false);
             }
             //Si viene por la derecha
             else{
+                i = decode(game, i,  false);
+                i++;
                 i = decode(game, i,  false);
                 i++;
                 i = decode(game, i,  false);
@@ -150,6 +173,8 @@ public class Gramatica extends PacmanController {
             if(fromy <= toy){
                 i = decode(game, i,  false);
                 i++;
+                i = decode(game, i,  false);
+                i++;
                 i = decode(game, i,  operativa);
                 i++;
                 i = decode(game, i,  false);
@@ -161,6 +186,8 @@ public class Gramatica extends PacmanController {
 
             //si está abajo
             else{
+                i = decode(game, i,  false);
+                i++;
                 i = decode(game, i,  operativa);
                 i++;
                 i = decode(game, i,  false);
@@ -175,6 +202,8 @@ public class Gramatica extends PacmanController {
         i++;
         //Si no están alineados
 
+        i = decode(game, i,  false);
+        i++;
         i = decode(game, i,  false);
         i++;
         i = decode(game, i,  false);
@@ -281,7 +310,7 @@ public class Gramatica extends PacmanController {
         }
         if (this.wraps == this.maxWraps)
             return i;
-        int instruc = codones.get(0).intValue() % N_INST;
+        int instruc = codones.get(i).intValue() % N_INST;
 
         switch (instruc) {
             case 0:
@@ -313,6 +342,7 @@ public class Gramatica extends PacmanController {
                     this.move = Constants.MOVE.LEFT;
                 return i;
             default:
+                i++;
                 return i;
         }
     }

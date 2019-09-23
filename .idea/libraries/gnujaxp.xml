@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="gnujaxp">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../jfreechart-1.0.1/jfreechart-1.0.1/lib/gnujaxp.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

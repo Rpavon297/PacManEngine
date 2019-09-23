@@ -3,6 +3,7 @@ package Testing.Evo.Algoritmo;
 import Testing.Evo.Genetica.Gen;
 import Testing.Evo.Genetica.Individuo;
 import Testing.Evo.Genetica.Poblacion;
+import Testing.Evo.Plotting.Diagnostico;
 import es.ucm.fd.ici.c1920.practica0.RobertoPavon.Ghosts;
 import pacman.Executor;
 import pacman.game.util.Stats;
@@ -24,7 +25,7 @@ public class AlgoritmoGenetico {
         int salvados = (int) Math.ceil(poblacion.getPoblacion().size() * percentElitismo);
         Poblacion elite = new Poblacion();
 
-        double fitnessTotal = actualizarPoblacion(poblacion);
+        double fitnessTotal = actualizarPoblacion(poblacion, 0);
 
         for(int i = 0; i < numGeneraciones; i++){
             generaciones.add(poblacion.getPoblacion().get(0));
@@ -40,11 +41,11 @@ public class AlgoritmoGenetico {
             //Mutación
             poblacion = new Poblacion(mutarPoblacion(poblacion.getPoblacion(), probabilidadMutacion));
             //Evaluación
-            fitnessTotal = actualizarPoblacion(poblacion);
+            fitnessTotal = actualizarPoblacion(poblacion, i);
             //Introducir elite
             poblacion.substitute(elite);
             //Reevaluación
-            fitnessTotal = actualizarPoblacion(poblacion);
+            fitnessTotal = actualizarPoblacion(poblacion, i);
         }
 
         mostrarGrafica(generaciones);
@@ -64,14 +65,14 @@ public class AlgoritmoGenetico {
         }
     }
 
-    private double actualizarPoblacion(Poblacion poblacion) {
+    private double actualizarPoblacion(Poblacion poblacion, int gen) {
         Executor executor = new Executor.Builder().build();
         double fitnessTotal = 0;
 
         for(Individuo ind : poblacion.getPoblacion()) {
             List<Double> lista = ind.getFenotipo();
             Gramatica gramatica = new Gramatica(lista);
-            Stats[] stats = executor.runExperiment(gramatica, new Ghosts(), 10, "Fitness...");
+            Stats[] stats = executor.runExperiment(gramatica, new Ghosts(), 10, "Generación: " + gen);
             ind.setFitness(stats[0].getAverage());
             fitnessTotal += stats[0].getAverage();
         }
@@ -189,10 +190,13 @@ public class AlgoritmoGenetico {
 
     private void mostrarGrafica(List<Individuo> generaciones){
         int i = 0;
+        List<Double> mejores = new ArrayList<>();
         for(Individuo g : generaciones) {
+            mejores.add(g.getFitness());
             i++;
             System.out.println("Generación " + i + ", puntuación del mejor PacMan: " + g.getFitness() +
                     " con fenotipo: " + g.getFenotipo() + " y genotipo: " + g.getAlelos());
         }
+        Diagnostico.mostrarGrafica(mejores);
     }
 }
