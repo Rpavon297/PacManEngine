@@ -3,16 +3,12 @@ package Testing.Evo.Algoritmo;
 import pacman.controllers.PacmanController;
 import pacman.game.Constants;
 import pacman.game.Game;
-import pacman.game.internal.Ghost;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static pacman.game.Constants.MOVE.DOWN;
 
-public class Gramatica extends PacmanController {
+public class DecodGramatica extends PacmanController {
+
     /**
      *       <S> = <exp>
      *       <exp> = <pog2> <pog3> <flee> <edible> <pill> <ppill> <arriba> <abajo> <dcha> <izda>
@@ -22,7 +18,7 @@ public class Gramatica extends PacmanController {
      *               <pillX>     = if (pill cerca en direccion X) <exp> if(direccion Y) <exp> ...
      *
      */
-    private final int[] DEFAULT_SETTINGS = {2,10,200,100000};
+    private final int[] DEFAULT_SETTINGS = {2,10,200,10000};
     private final int SEC_SWITCH = 1000;
     private final int N_INST = 7;
     private final int HOLGURA = 2;
@@ -37,7 +33,7 @@ public class Gramatica extends PacmanController {
 
     private Constants.MOVE move;
 
-    public Gramatica(){
+    public DecodGramatica(){
         wraps = 0;
         flow_index = 0;
         maxWraps = DEFAULT_SETTINGS[0];
@@ -47,7 +43,7 @@ public class Gramatica extends PacmanController {
         move = Constants.MOVE.NEUTRAL;
     }
 
-    public Gramatica(List<Double> codones){
+    public DecodGramatica(List<Double> codones){
         wraps = 0;
         maxWraps = DEFAULT_SETTINGS[0];
         fleeDist = DEFAULT_SETTINGS[1];
@@ -57,13 +53,12 @@ public class Gramatica extends PacmanController {
         this.codones = codones;
     }
 
-    @Override
     public Constants.MOVE getMove(Game game, long timeDue) {
         int i = decode(game, 0, true);
         return move;
     }
 
-    public Gramatica(int maxWraps, int fleeDist, int chaseDist, int pillDist){
+    public DecodGramatica(int maxWraps, int fleeDist, int chaseDist, int pillDist){
         this.wraps = 0;
         this.maxWraps = maxWraps;
         this.fleeDist = fleeDist;
@@ -71,30 +66,60 @@ public class Gramatica extends PacmanController {
         this.pillDist = pillDist;
         move = Constants.MOVE.NEUTRAL;
     }
-
     /*
-        //Encadena dos funciones
-        public int pog2( Game game, int i, boolean operativa){
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            return decode(game, i,  operativa);
-        }
+    //Encadena dos funciones
+    public int pog2( Game game, int i, boolean operativa){
+        String ident = "";
+        for(int j = 0; j < i; j++)
+            ident += "-";
 
-        //Encadena tres funciones
-        public int pog3( Game game, int i, boolean operativa){
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            return decode(game, i,  operativa);
-        }
-    */
+        System.out.println(ident + "pog2");
 
+        i++;
+        i = decode(game, i,  operativa);
+        i++;
+        return decode(game, i,  operativa);
+    }
+
+    //Encadena tres funciones
+    public int pog3( Game game, int i, boolean operativa){
+        String ident = "";
+        for(int j = 0; j < i; j++)
+            ident += "-";
+
+        System.out.println(ident + "pog3");
+
+        i++;
+        i = decode(game, i,  operativa);
+        i++;
+        i = decode(game, i,  operativa);
+        i++;
+        return decode(game, i,  operativa);
+    }
+*/
     //Comprueba donde está el fantasma mas cercano
     public int flee(Game game, int i,  boolean operativa){
+        String ident = "";
+        for(int j = 0; j < i; j++)
+            ident += "-";
+
+        System.out.println(ident + "flee");
+
         i++;
+
+        if(!operativa){
+            i = decode(game, i,  false);
+            i++;
+            i = decode(game, i,  false);
+            i++;
+            i = decode(game, i,  false);
+            i++;
+            i = decode(game, i,  false);
+            i++;
+            i = decode(game, i,  false);
+            i++;
+            return decode(game, i,  false);
+        }
 
         double dist = fleeDist;
         int from = game.getPacmanCurrentNodeIndex();
@@ -107,6 +132,7 @@ public class Gramatica extends PacmanController {
                 cercano = ghostType;
             }
         }
+
 
         //Si no hay fantasmas cerca
         if(cercano == null){
@@ -190,8 +216,46 @@ public class Gramatica extends PacmanController {
 
     }
 
+    /*
+    public int edible( Game game, int i, boolean operativa){
+        i++;
+
+        if(!operativa){
+            i = decode(game, i,  false);
+            i++;
+            return decode(game, i,  false);
+        }
+
+        double dist = chaseDist;
+        int from = game.getPacmanCurrentNodeIndex();
+        Constants.GHOST cercano = null;
+
+        for(Constants.GHOST ghostType : Constants.GHOST.values()){
+            double ndist = game.getDistance(from, game.getGhostCurrentNodeIndex(ghostType),DM);
+            if(ndist < dist && game.isGhostEdible(ghostType)){
+                dist = ndist;
+                cercano = ghostType;
+            }
+        }
+
+        if(cercano != null){
+            i = decode(game, i, operativa);
+            i++;
+            return decode(game, i ,  false);
+        }else{
+            i = decode(game, i,  false);
+            i++;
+            return decode(game, i ,  operativa);
+        }
+    }*/
+
     //Comprueba dodne está la pill mas cercana
     public int pill(Game game, int i, boolean operativa){
+        String ident = "";
+        for(int j = 0; j < i; j++)
+            ident += "-";
+
+        System.out.println(ident + "pill");
         i++;
         int pills[] = game.getActivePillsIndices();
         double distp = -1;
@@ -269,184 +333,25 @@ public class Gramatica extends PacmanController {
         return decode(game, i,  false);
     }
 
-    /*
-    public int edible( Game game, int i, boolean operativa){
-        i++;
-
-        if(!operativa){
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i,  false);
-        }
-
-        double dist = chaseDist;
-        int from = game.getPacmanCurrentNodeIndex();
-        Constants.GHOST cercano = null;
-
-        for(Constants.GHOST ghostType : Constants.GHOST.values()){
-            double ndist = game.getDistance(from, game.getGhostCurrentNodeIndex(ghostType),DM);
-            if(ndist < dist && game.isGhostEdible(ghostType)){
-                dist = ndist;
-                cercano = ghostType;
-            }
-        }
-
-        if(cercano != null){
-            i = decode(game, i, operativa);
-            i++;
-            return decode(game, i ,  false);
-        }else{
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i ,  operativa);
-        }
-    }*/
-
     //Comprueba si tiene un obstáculo delante
     public int blocked( Game game, int i, boolean operativa){
+        String ident = "";
+        for(int j = 0; j < i; j++)
+            ident += "-";
+
+        System.out.println(ident + "blocked");
+
         i++;
         List<Constants.MOVE> moves = asList(game.getPossibleMoves(game.getPacmanCurrentNodeIndex()));
-        Constants.MOVE lastMove = game.getPacmanLastMoveMade();
 
-        switch(lastMove){
-            case UP:
-                if(moves.contains(Constants.MOVE.UP)){
-                    i = decode(game, i,  operativa);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  false);
-                }else{
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  operativa);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  false);
-                }
-            case DOWN:
-                if(moves.contains(Constants.MOVE.DOWN)){
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  operativa);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  false);
-                }else{
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  operativa);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  false);
-                }
-            case LEFT:
-                if(moves.contains(Constants.MOVE.LEFT)){
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  operativa);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                return decode(game, i,  false);
-            }else{
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  operativa);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                return decode(game, i,  false);
-            }
-            case RIGHT:
-                if(moves.contains(Constants.MOVE.RIGHT)){
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  operativa);
-                    i++;
-                    return decode(game, i,  false);
-                }else{
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  operativa);
-                }
-            default:
-                return decode(game,i,operativa);
+        if(moves.contains(game.getPacmanLastMoveMade())){
+            i = decode(game, i,  false);
+            i++;
+            return decode(game, i,  operativa);
+        }else{
+            i = decode(game, i,operativa);
+            i++;
+            return decode(game, i,  false);
         }
     }
 
@@ -478,6 +383,11 @@ public class Gramatica extends PacmanController {
     }*/
 
     public int decode( Game game, int i, boolean operativa){
+        String ident = "";
+        for(int j = 0; j < i; j++)
+            ident += "-";
+
+
         flow_index ++;
         if(flow_index > SEC_SWITCH)
             return i;
@@ -496,21 +406,29 @@ public class Gramatica extends PacmanController {
             case 1:
                 return blocked(game, i, operativa);
             case 2:
-                if (operativa)
+                if (operativa) {
+                    System.out.println(ident + "UP");
                     this.move = Constants.MOVE.UP;
+                }
                 return i;
             case 3:
-                if (operativa)
-                    this.move = DOWN;
-                return i;
+                if (operativa) {
+                    System.out.println(ident + "DOWN");
+                    this.move = Constants.MOVE.DOWN;
+                }
+                    return i;
             case 4:
-                if (operativa)
+                if (operativa) {
+                    System.out.println(ident + "RIGHT");
                     this.move = Constants.MOVE.RIGHT;
-                return i;
+                }
+                    return i;
             case 5:
-                if (operativa)
+                if (operativa) {
+                    System.out.println(ident + "LEFT");
                     this.move = Constants.MOVE.LEFT;
-                return i;
+                }
+                    return i;
             case 6:
                 return pill(game, i, operativa);
             default:
@@ -518,6 +436,7 @@ public class Gramatica extends PacmanController {
                 return i;
         }
     }
+
 
 
 
