@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.util.List;
 
 
-public class Diagnostico extends JFrame {
+public class Diagnostico {
 
     public static void mostrarGrafica( List<Double> mejores) {
         double[] y = new double[mejores.size()];
@@ -25,6 +25,6 @@ public class Diagnostico extends JFrame {
         fig.ylim(200, 300);
         fig.xlabel("Generaciones");
         fig.ylabel("Puntuación");
-
+        fig.saveas("log.jpeg",640,480);
     }
 }

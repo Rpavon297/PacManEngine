@@ -4,6 +4,7 @@ import Testing.Evo.Algoritmo.AlgoritmoGenetico;
 import Testing.Evo.Algoritmo.Gramatica;
 import Testing.Evo.Genetica.Individuo;
 import Testing.Evo.Genetica.Poblacion;
+import Testing.Evo.Plotting.Diagnostico;
 import es.ucm.fd.ici.c1920.practica0.RobertoPavon.Ghosts;
 import es.ucm.fd.ici.c1920.practica0.RobertoPavon.MsPacMan;
 import pacman.Executor;
@@ -11,6 +12,7 @@ import pacman.controllers.GhostController;
 import pacman.controllers.PacmanController;
 import pacman.game.util.Stats;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Testing {
@@ -32,7 +34,6 @@ public class Testing {
         Gramatica gramatica = new Gramatica(lista);
 
         GhostController ghost = new Ghosts();
-
         System.out.println(executor.runGame(gramatica, ghost, 50));
 
 
