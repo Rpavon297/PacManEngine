@@ -5,6 +5,7 @@ import Testing.Evo.Genetica.Individuo;
 import Testing.Evo.Genetica.Poblacion;
 import es.ucm.fd.ici.c1920.practica0.RobertoPavon.Ghosts;
 import pacman.Executor;
+import pacman.controllers.PacmanController;
 import pacman.game.util.Stats;
 
 import java.util.ArrayList;
@@ -70,10 +71,12 @@ public class AlgoritmoGenetico {
 
         for(Individuo ind : poblacion.getPoblacion()) {
             List<Double> lista = ind.getFenotipo();
+
             Gramatica gramatica = new Gramatica(lista);
+
             Stats[] stats = executor.runExperiment(gramatica, new Ghosts(), 5, "Generación: " + gen);
-            ind.setFitness(stats[0].getAverage());
-            fitnessTotal += stats[0].getAverage();
+            ind.setFitness(stats[1].getAverage());
+            fitnessTotal += stats[1].getAverage();
         }
 
         ordenarPoblacion(poblacion);
@@ -188,13 +191,13 @@ public class AlgoritmoGenetico {
     }
 
     private void mostrarGrafica(List<Individuo> generaciones){
-        int i = 0;
+        /*int i = 0;
         List<Double> mejores = new ArrayList<>();
         for(Individuo g : generaciones) {
             mejores.add(g.getFitness());
             i++;
             System.out.println("Generación " + i + ", puntuación del mejor PacMan: " + g.getFitness() +
                     " con fenotipo: " + g.getFenotipo() + " y genotipo: " + g.getAlelos());
-        }
+        }*/
     }
 }

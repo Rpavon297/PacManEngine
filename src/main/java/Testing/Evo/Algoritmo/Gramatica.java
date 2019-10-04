@@ -3,522 +3,260 @@ package Testing.Evo.Algoritmo;
 import pacman.controllers.PacmanController;
 import pacman.game.Constants;
 import pacman.game.Game;
-import pacman.game.internal.Ghost;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Arrays.asList;
-import static pacman.game.Constants.MOVE.DOWN;
+import static pacman.game.Constants.MOVE.*;
+
+/**
+ * condition-statement ::= if( condition ) { statement } else { statement } | if( condition ) { statement }
+ *
+ * statement ::= condition-statement | terminal
+ *
+ * condition ::= isGhostClose | isPowerPillClose | isEdibleGhostClose
+ *
+ * terminal ::= fleeClosestGhost | eatCloserPowerPill | chaseCloserGhost | goToClosestPill
+ */
 
 public class Gramatica extends PacmanController {
-    /**
-     *       <S> = <exp>
-     *       <exp> = <pog2> <pog3> <flee> <edible> <pill> <ppill> <arriba> <abajo> <dcha> <izda>
-     *
-     *               <ghostX>    = if (fantasma cerca en direccion X) <exp> if(direccion Y) <exp> ...
-     *               <edibleX>   = if (fantasma comestible cerca en direccion X) <exp> if(direccion Y) <exp> ...
-     *               <pillX>     = if (pill cerca en direccion X) <exp> if(direccion Y) <exp> ...
-     *
-     */
-    private final int[] DEFAULT_SETTINGS = {2,10,200,100000};
-    private final int SEC_SWITCH = 1000;
-    private final int N_INST = 7;
-    private final int HOLGURA = 2;
-    private final Constants.DM DM = Constants.DM.PATH;
+    //  CONSTANTES GENETICAS
+    private final int NCSTATEMENT = 2;
+    private final int NSTATEMENT = 2;
+    private final int NCONDITION = 3;
+    private final int NTERMINAL = 4;
+    //  CONSTANTES DEL JUEGO
+    private final int FLEE = 30;
+    private final int CHASE = 20;
+    private final int PPILL = 29;
+    private final Constants.DM DISTANCE = Constants.DM.PATH;
+
     private int wraps;
     private int maxWraps;
-    private int fleeDist;
-    private int chaseDist;
-    private int pillDist;
-    private int flow_index;
     private List<Double> codones;
-
     private Constants.MOVE move;
+    private Game game;
+    private int last_position;
 
-    public Gramatica(){
+    public Gramatica(List<Double> lista) {
         wraps = 0;
-        flow_index = 0;
-        maxWraps = DEFAULT_SETTINGS[0];
-        fleeDist = DEFAULT_SETTINGS[1];
-        chaseDist = DEFAULT_SETTINGS[2];
-        pillDist = DEFAULT_SETTINGS[3];
-        move = Constants.MOVE.NEUTRAL;
-    }
+        maxWraps = 2;
 
-    public Gramatica(List<Double> codones){
-        wraps = 0;
-        maxWraps = DEFAULT_SETTINGS[0];
-        fleeDist = DEFAULT_SETTINGS[1];
-        chaseDist = DEFAULT_SETTINGS[2];
-        pillDist = DEFAULT_SETTINGS[3];
-        move = Constants.MOVE.NEUTRAL;
-        this.codones = codones;
+        this.codones = lista;
     }
 
     @Override
     public Constants.MOVE getMove(Game game, long timeDue) {
-        int i = decode(game, 0, true);
+        this.game = game;
+
+        conditionStatement(0, true);
+
         return move;
     }
 
-    public Gramatica(int maxWraps, int fleeDist, int chaseDist, int pillDist){
-        this.wraps = 0;
-        this.maxWraps = maxWraps;
-        this.fleeDist = fleeDist;
-        this.chaseDist = chaseDist;
-        this.pillDist = pillDist;
-        move = Constants.MOVE.NEUTRAL;
+    private int conditionStatement(int i, boolean operative){
+        int instruction = codones.get(i).intValue() % NCSTATEMENT;
+
+        i = checkWraps(i);
+
+        if(wraps < maxWraps){
+            switch (instruction){
+                case 0:
+                    if(condition(i)){
+                        i = statement(i, operative);
+                        i = checkWraps(i);
+                        i = statement(i, false);
+                    }else{
+                        statement(i, false);
+                        i = checkWraps(i);
+                        statement(i, operative);
+                    }
+
+                    break;
+                case 1:
+                    if(condition(i))
+                        i = statement(i, operative);
+                    else
+                        i = statement(i,false);
+
+                    break;
+            }
+        }
+
+        return i;
     }
 
-    /*
-        //Encadena dos funciones
-        public int pog2( Game game, int i, boolean operativa){
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            return decode(game, i,  operativa);
-        }
+    private int statement(int i, boolean operative){
+        int instruction = codones.get(i).intValue() % NSTATEMENT;
 
-        //Encadena tres funciones
-        public int pog3( Game game, int i, boolean operativa){
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            return decode(game, i,  operativa);
-        }
-    */
+        i = checkWraps(i);
 
-    //Comprueba donde está el fantasma mas cercano
-    public int flee(Game game, int i,  boolean operativa){
-        i++;
+        if(wraps < maxWraps){
 
-        double dist = fleeDist;
-        int from = game.getPacmanCurrentNodeIndex();
-        Constants.GHOST cercano = null;
-
-        for(Constants.GHOST ghostType : Constants.GHOST.values()){
-            double ndist = game.getDistance(from, game.getGhostCurrentNodeIndex(ghostType),DM);
-            if(ndist < dist){
-                dist = ndist;
-                cercano = ghostType;
+            switch (instruction){
+                case 0:
+                    i = conditionStatement(i,operative);
+                    break;
+                case 1:
+                    i = terminal(i,operative);
+                    break;
             }
         }
 
-        //Si no hay fantasmas cerca
-        if(cercano == null){
-
-            i = decode(game, i,  operativa);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i,  false);
-        }
-
-        int fromx = game.getNodeXCood(from),
-                fromy = game.getNodeYCood(from);
-
-        int tox = game.getNodeXCood(game.getGhostCurrentNodeIndex(cercano)),
-                toy = game.getNodeYCood(game.getGhostCurrentNodeIndex(cercano));
-
-        //Si viene por la izquierda arriba
-        if(tox <= fromx && toy <= fromy) {
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            return decode(game, i,  false);
-        }
-        //Si viene por la derecha arriba
-        if(tox > fromx && toy <= fromy){
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i,  false);
-        }
-
-        //Si está abajo izquierda
-        if(tox <= fromx){
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i,  false);
-        }
-
-        //si está abajo derecha
-        i = decode(game, i,  false);
-        i++;
-        i = decode(game, i,  operativa);
-        i++;
-        i = decode(game, i,  false);
-        i++;
-        i = decode(game, i,  false);
-        i++;
-        i = decode(game, i,  false);
-        i++;
-        return decode(game, i,  false);
-
-
+        return i;
     }
 
-    //Comprueba dodne está la pill mas cercana
-    public int pill(Game game, int i, boolean operativa){
-        i++;
-        int pills[] = game.getActivePillsIndices();
-        double distp = -1;
-        int to = -1, from = game.getPacmanCurrentNodeIndex();
+    private int terminal(int i, boolean operative){
+        int terminal = codones.get(i).intValue() % NTERMINAL;
 
-        for(int p : pills){
-            double ndistp = game.getDistance(from,p, DM);
+        i = checkWraps(i);
 
-            if(ndistp <= this.pillDist && (ndistp < distp || distp == -1)) {
-                distp = ndistp;
-                to = p;
+        if(wraps < maxWraps) {
+
+            switch (terminal) {
+                case 0:
+                    if (operative)
+                        chaseClosestGhost();
+                    break;
+                case 1:
+                    if (operative)
+                        fleeClosestGhost();
+                    break;
+                case 2:
+                    if (operative)
+                        eatCloserPPill();
+                    break;
+                case 3:
+                    if (operative)
+                        eatCloserPill();
             }
         }
 
-        int fromx = game.getNodeXCood(from),
-                fromy = game.getNodeYCood(from),
-                tox = game.getNodeXCood(to),
-                toy = game.getNodeYCood(to);
-
-        //Si viene por la izquierda arriba
-        if(tox <= fromx && toy <= fromy) {
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            return decode(game, i,  false);
-        }
-        //Si viene por la derecha arriba
-        if(tox > fromx && toy <= fromy){
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i,  false);
-        }
-
-        //Si está abajo izquierda
-        if(tox <= fromx){
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  operativa);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i,  false);
-        }
-
-        //si está abajo derecha
-        i = decode(game, i,  false);
-        i++;
-        i = decode(game, i,  operativa);
-        i++;
-        i = decode(game, i,  false);
-        i++;
-        i = decode(game, i,  false);
-        i++;
-        i = decode(game, i,  false);
-        i++;
-        return decode(game, i,  false);
+        return i;
     }
 
-    /*
-    public int edible( Game game, int i, boolean operativa){
-        i++;
+    private boolean condition(int i){
+        int condition = codones.get(i).intValue() % NCONDITION;
 
-        if(!operativa){
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i,  false);
-        }
-
-        double dist = chaseDist;
-        int from = game.getPacmanCurrentNodeIndex();
-        Constants.GHOST cercano = null;
-
-        for(Constants.GHOST ghostType : Constants.GHOST.values()){
-            double ndist = game.getDistance(from, game.getGhostCurrentNodeIndex(ghostType),DM);
-            if(ndist < dist && game.isGhostEdible(ghostType)){
-                dist = ndist;
-                cercano = ghostType;
-            }
-        }
-
-        if(cercano != null){
-            i = decode(game, i, operativa);
-            i++;
-            return decode(game, i ,  false);
-        }else{
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i ,  operativa);
-        }
-    }*/
-
-    //Comprueba si tiene un obstáculo delante
-    public int blocked( Game game, int i, boolean operativa){
-        i++;
-        List<Constants.MOVE> moves = asList(game.getPossibleMoves(game.getPacmanCurrentNodeIndex()));
-        Constants.MOVE lastMove = game.getPacmanLastMoveMade();
-
-        switch(lastMove){
-            case UP:
-                if(moves.contains(Constants.MOVE.UP)){
-                    i = decode(game, i,  operativa);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  false);
-                }else{
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  operativa);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  false);
-                }
-            case DOWN:
-                if(moves.contains(Constants.MOVE.DOWN)){
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  operativa);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  false);
-                }else{
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  operativa);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  false);
-                }
-            case LEFT:
-                if(moves.contains(Constants.MOVE.LEFT)){
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  operativa);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                return decode(game, i,  false);
-            }else{
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                i = decode(game, i,  operativa);
-                i++;
-                i = decode(game, i,  false);
-                i++;
-                return decode(game, i,  false);
-            }
-            case RIGHT:
-                if(moves.contains(Constants.MOVE.RIGHT)){
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  operativa);
-                    i++;
-                    return decode(game, i,  false);
-                }else{
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    i = decode(game, i,  false);
-                    i++;
-                    return decode(game, i,  operativa);
-                }
-            default:
-                return decode(game,i,operativa);
-        }
-    }
-
-    /*
-    public int ppill(Game game, int i, boolean operativa){
-        i++;
-        int pills[] = game.getActivePowerPillsIndices();
-        double distp = -1;
-        int to = -1, from = game.getPacmanCurrentNodeIndex();
-
-        for(int p : pills){
-            double ndistp = game.getDistance(from,p, DM);
-
-            if(ndistp <= this.pillDist && (ndistp < distp || distp == -1)) {
-                distp = ndistp;
-                to = p;
-            }
-        }
-
-        if(to == -1){
-            i = decode(game, i,  false);
-            i++;
-            return decode(game, i,  operativa);
-        }else{
-            i = decode(game, i, operativa);
-            i++;
-            return decode(game, i,  false);
-        }
-    }*/
-
-    public int decode( Game game, int i, boolean operativa){
-        flow_index ++;
-        if(flow_index > SEC_SWITCH)
-            return i;
-
-        if (i >= codones.size()) {
-            i = 0;
-            this.wraps++;
-        }
-        if (this.wraps == this.maxWraps)
-            return i;
-        int instruc = codones.get(i).intValue() % N_INST;
-
-        switch (instruc) {
+        switch (condition){
             case 0:
-                return flee(game, i, operativa);
+                return isGhostClose();
             case 1:
-                return blocked(game, i, operativa);
+                return isPowerPillClose();
             case 2:
-                if (operativa)
-                    this.move = Constants.MOVE.UP;
-                return i;
-            case 3:
-                if (operativa)
-                    this.move = DOWN;
-                return i;
-            case 4:
-                if (operativa)
-                    this.move = Constants.MOVE.RIGHT;
-                return i;
-            case 5:
-                if (operativa)
-                    this.move = Constants.MOVE.LEFT;
-                return i;
-            case 6:
-                return pill(game, i, operativa);
+                return isEdibleGhostClose();
             default:
-                i++;
-                return i;
+                return false;
         }
     }
 
 
+    //CONDITIONS
+    private boolean isGhostClose(){
+        for (Constants.GHOST ghost : Constants.GHOST.values()){
+            if(game.getGhostLairTime(ghost) == 0 && !game.isGhostEdible(ghost) &&
+                    game.getDistance(game.getGhostCurrentNodeIndex(ghost),game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DISTANCE) < FLEE)
+                return true;
+        }
 
+        return false;
+    }
+
+    private boolean isPowerPillClose(){
+        for(int index : game.getPowerPillIndices()){
+            if(game.getDistance(game.getPacmanCurrentNodeIndex(), index, DISTANCE) < PPILL)
+                return true;
+        }
+
+        return false;
+    }
+
+    private boolean isEdibleGhostClose(){
+        for (Constants.GHOST ghost : Constants.GHOST.values()){
+            if(game.getGhostLairTime(ghost) == 0 && game.isGhostEdible(ghost) &&
+                    game.getDistance(game.getGhostCurrentNodeIndex(ghost),game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DISTANCE) < CHASE)
+                return true;
+        }
+
+        return false;
+    }
+
+    //TERMINALS
+    private void fleeClosestGhost(){
+        double closestDistance = Double.MAX_VALUE;
+        Constants.GHOST closestGhost = null;
+
+        for (Constants.GHOST ghost : Constants.GHOST.values()){
+            double distance =  game.getDistance(game.getGhostCurrentNodeIndex(ghost),game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DISTANCE);
+
+            if(game.getGhostLairTime(ghost) == 0 && game.isGhostEdible(ghost) && distance < closestDistance){
+                closestDistance = distance;
+                closestGhost = ghost;
+            }
+        }
+
+        if(closestGhost != null)
+            this.move = game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getGhostCurrentNodeIndex(closestGhost), DISTANCE);
+    }
+
+    private void chaseClosestGhost(){
+        double closestDistance = Double.MAX_VALUE;
+        Constants.GHOST closestGhost = null;
+
+        for (Constants.GHOST ghost : Constants.GHOST.values()){
+            double distance =  game.getDistance(game.getGhostCurrentNodeIndex(ghost),game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DISTANCE);
+
+            if(game.getGhostLairTime(ghost) == 0 && !game.isGhostEdible(ghost) && distance < closestDistance){
+                closestDistance = distance;
+                closestGhost = ghost;
+            }
+        }
+
+        if(closestGhost != null)
+            this.move = game.getNextMoveAwayFromTarget(game.getPacmanCurrentNodeIndex(), game.getGhostCurrentNodeIndex(closestGhost), DISTANCE);
+    }
+
+    private void eatCloserPPill(){
+        double closestDistance = Double.MAX_VALUE;
+        int closestIndex = -1;
+
+        for(int index : game.getPowerPillIndices()){
+            double distance = game.getDistance(game.getPacmanCurrentNodeIndex(), index, DISTANCE);
+
+            if(distance < closestDistance){
+                closestDistance = distance;
+                closestIndex = index;
+            }
+        }
+
+        if(closestIndex != -1)
+            this.move = game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), closestIndex,DISTANCE);
+
+    }
+
+    private void eatCloserPill(){
+        double closestDistance = Double.MAX_VALUE;
+        int closestIndex = -1;
+
+        for(int index : game.getActivePillsIndices()){
+            double distance = game.getDistance(game.getPacmanCurrentNodeIndex(), index, DISTANCE);
+
+            if(distance < closestDistance){
+                closestDistance = distance;
+                closestIndex = index;
+            }
+        }
+
+        if(closestIndex != -1)
+            this.move = game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), closestIndex,DISTANCE);
+    }
+    //  CHECKS APPROPIATE CODON IN USE
+    private int checkWraps(int i){
+        i++;
+
+        if(i == codones.size()){
+            i = 0;
+            wraps++;
+        }
+        return i;
+    }
 }
