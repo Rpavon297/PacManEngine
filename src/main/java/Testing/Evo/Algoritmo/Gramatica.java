@@ -9,13 +9,13 @@ import java.util.List;
 import static pacman.game.Constants.MOVE.*;
 
 /**
- * condition-statement ::= if( condition ) { statement } else { statement } | if( condition ) { statement }
+ * <condition-statement> ::= if( <condition> ) { <statement> } else { <statement> } | if( <condition> ) { <statement> }
  *
- * statement ::= condition-statement | terminal
+ * <statement> ::= <condition-statement> | <terminal>
  *
- * condition ::= isGhostClose | isPowerPillClose | isEdibleGhostClose
+ * <condition> ::= <isGhostClose> | <isPowerPillClose> | <isEdibleGhostClose>
  *
- * terminal ::= fleeClosestGhost | eatCloserPowerPill | chaseCloserGhost | goToClosestPill
+ * <terminal> ::= <fleeClosestGhost> | <eatCloserPowerPill> | <chaseCloserGhost> | <goToClosestPill>
  */
 
 public class Gramatica extends PacmanController {
@@ -27,7 +27,7 @@ public class Gramatica extends PacmanController {
     //  CONSTANTES DEL JUEGO
     private final int FLEE = 30;
     private final int CHASE = 20;
-    private final int PPILL = 29;
+    private final double PPILL = Double.MAX_VALUE;
     private final Constants.DM DISTANCE = Constants.DM.PATH;
 
     private int wraps;
@@ -35,7 +35,6 @@ public class Gramatica extends PacmanController {
     private List<Double> codones;
     private Constants.MOVE move;
     private Game game;
-    private int last_position;
 
     public Gramatica(List<Double> lista) {
         wraps = 0;
@@ -47,6 +46,7 @@ public class Gramatica extends PacmanController {
     @Override
     public Constants.MOVE getMove(Game game, long timeDue) {
         this.game = game;
+        wraps = 0;
 
         conditionStatement(0, true);
 
@@ -173,7 +173,7 @@ public class Gramatica extends PacmanController {
     private boolean isEdibleGhostClose(){
         for (Constants.GHOST ghost : Constants.GHOST.values()){
             if(game.getGhostLairTime(ghost) == 0 && game.isGhostEdible(ghost) &&
-                    game.getDistance(game.getGhostCurrentNodeIndex(ghost),game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DISTANCE) < CHASE)
+                    game.getDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(ghost), DISTANCE) < CHASE)
                 return true;
         }
 
@@ -182,23 +182,6 @@ public class Gramatica extends PacmanController {
 
     //TERMINALS
     private void fleeClosestGhost(){
-        double closestDistance = Double.MAX_VALUE;
-        Constants.GHOST closestGhost = null;
-
-        for (Constants.GHOST ghost : Constants.GHOST.values()){
-            double distance =  game.getDistance(game.getGhostCurrentNodeIndex(ghost),game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DISTANCE);
-
-            if(game.getGhostLairTime(ghost) == 0 && game.isGhostEdible(ghost) && distance < closestDistance){
-                closestDistance = distance;
-                closestGhost = ghost;
-            }
-        }
-
-        if(closestGhost != null)
-            this.move = game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getGhostCurrentNodeIndex(closestGhost), DISTANCE);
-    }
-
-    private void chaseClosestGhost(){
         double closestDistance = Double.MAX_VALUE;
         Constants.GHOST closestGhost = null;
 
@@ -215,11 +198,28 @@ public class Gramatica extends PacmanController {
             this.move = game.getNextMoveAwayFromTarget(game.getPacmanCurrentNodeIndex(), game.getGhostCurrentNodeIndex(closestGhost), DISTANCE);
     }
 
+    private void chaseClosestGhost(){
+        double closestDistance = Double.MAX_VALUE;
+        Constants.GHOST closestGhost = null;
+
+        for (Constants.GHOST ghost : Constants.GHOST.values()){
+            double distance =  game.getDistance(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(ghost), DISTANCE);
+
+            if(game.getGhostLairTime(ghost) == 0 && game.isGhostEdible(ghost) && distance < closestDistance){
+                closestDistance = distance;
+                closestGhost = ghost;
+            }
+        }
+
+        if(closestGhost != null)
+            this.move = game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getGhostCurrentNodeIndex(closestGhost), DISTANCE);
+    }
+
     private void eatCloserPPill(){
         double closestDistance = Double.MAX_VALUE;
         int closestIndex = -1;
 
-        for(int index : game.getPowerPillIndices()){
+        for(int index : game.getActivePowerPillsIndices()){
             double distance = game.getDistance(game.getPacmanCurrentNodeIndex(), index, DISTANCE);
 
             if(distance < closestDistance){

@@ -1,5 +1,6 @@
 package Testing.Evo.Algoritmo;
 
+import Testing.Evo.Controladores.RandomGhosts;
 import Testing.Evo.Genetica.Gen;
 import Testing.Evo.Genetica.Individuo;
 import Testing.Evo.Genetica.Poblacion;
@@ -74,9 +75,12 @@ public class AlgoritmoGenetico {
 
             Gramatica gramatica = new Gramatica(lista);
 
-            Stats[] stats = executor.runExperiment(gramatica, new Ghosts(), 5, "Generación: " + gen);
-            ind.setFitness(stats[1].getAverage());
-            fitnessTotal += stats[1].getAverage();
+            Stats[] stats = executor.runExperiment(gramatica, new RandomGhosts(), 5, "Generación: " + gen);
+
+            double fitness = (stats[0].getAverage() * stats[0].getAverage())/stats[1].getAverage();
+
+            ind.setFitness(fitness);
+            fitnessTotal += fitness;
         }
 
         ordenarPoblacion(poblacion);

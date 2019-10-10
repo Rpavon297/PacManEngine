@@ -1,5 +1,6 @@
-package Testing;
+package Testing.Evo.Controladores;
 
+import Testing.Testing;
 import pacman.controllers.GhostController;
 import pacman.game.Constants;
 import pacman.game.Game;

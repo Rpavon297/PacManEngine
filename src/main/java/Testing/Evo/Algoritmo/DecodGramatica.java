@@ -74,7 +74,7 @@ public class DecodGramatica {
 
                     break;
                 case 1:
-                    System.out.print(sangria(sangria) + "IF");
+                    System.out.print(sangria(sangria) + "IF ");
 
                     if(condition(i))
                         i = statement(i, sangria,operative);

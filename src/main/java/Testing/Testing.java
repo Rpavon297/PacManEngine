@@ -3,6 +3,7 @@ package Testing;
 import Testing.Evo.Algoritmo.AlgoritmoGenetico;
 import Testing.Evo.Algoritmo.DecodGramatica;
 import Testing.Evo.Algoritmo.Gramatica;
+import Testing.Evo.Controladores.RandomGhosts;
 import Testing.Evo.Genetica.Individuo;
 import Testing.Evo.Genetica.Poblacion;
 
@@ -23,7 +24,7 @@ public class Testing {
                 .build();;
 
         AlgoritmoGenetico algoritmoGenetico = new AlgoritmoGenetico();
-        Poblacion poblacion = algoritmoGenetico.ejecutarAlgoritmo(50,  100, 60, 28,
+        Poblacion poblacion = algoritmoGenetico.ejecutarAlgoritmo(50,  50, 60, 28,
          10, true, 0.05);
 
 
@@ -43,7 +44,7 @@ public class Testing {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        GhostController ghost = new Ghosts();
+        GhostController ghost = new RandomGhosts();
         System.out.println(executor.runGame(gramatica, ghost, 30));
 
 
