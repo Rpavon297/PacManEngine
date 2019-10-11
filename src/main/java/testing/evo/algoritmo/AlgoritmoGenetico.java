@@ -1,12 +1,11 @@
-package Testing.Evo.Algoritmo;
+package testing.evo.algoritmo;
 
-import Testing.Evo.Controladores.RandomGhosts;
-import Testing.Evo.Genetica.Gen;
-import Testing.Evo.Genetica.Individuo;
-import Testing.Evo.Genetica.Poblacion;
-import es.ucm.fd.ici.c1920.practica0.RobertoPavon.Ghosts;
+import testing.evo.controladores.RandomGhosts;
+import testing.evo.data.Plot;
+import testing.evo.genetica.Gen;
+import testing.evo.genetica.Individuo;
+import testing.evo.genetica.Poblacion;
 import pacman.Executor;
-import pacman.controllers.PacmanController;
 import pacman.game.util.Stats;
 
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public class AlgoritmoGenetico {
 
             Stats[] stats = executor.runExperiment(gramatica, new RandomGhosts(), 5, "Generación: " + gen);
 
-            double fitness = (stats[0].getAverage() * stats[0].getAverage())/stats[1].getAverage();
+            double fitness = FitnessFunction.getFitness(stats);
 
             ind.setFitness(fitness);
             fitnessTotal += fitness;
@@ -90,7 +89,7 @@ public class AlgoritmoGenetico {
     }
 
     private void ordenarPoblacion(Poblacion poblacion){
-        Collections.sort(poblacion.getPoblacion(), (i1, i2) -> new Double(i2.getFitness()).compareTo(new Double(i1.getFitness())));
+        Collections.sort(poblacion.getPoblacion(), (i1, i2) -> Double.compare(i2.getFitness(), i1.getFitness()));
     }
 
     private List<Individuo> seleccionarPoblacion(List<Individuo> poblacion, int k){
@@ -195,13 +194,14 @@ public class AlgoritmoGenetico {
     }
 
     private void mostrarGrafica(List<Individuo> generaciones){
-        /*int i = 0;
-        List<Double> mejores = new ArrayList<>();
-        for(Individuo g : generaciones) {
-            mejores.add(g.getFitness());
-            i++;
-            System.out.println("Generación " + i + ", puntuación del mejor PacMan: " + g.getFitness() +
-                    " con fenotipo: " + g.getFenotipo() + " y genotipo: " + g.getAlelos());
-        }*/
+        List<Double> fitness = new ArrayList<>();
+
+        for(Individuo g : generaciones)
+            fitness.add(g.getFitness());
+
+        System.out.println("Mejor individuo con puntuacion: " + generaciones.get(0).getFitness());
+
+        Plot plot = new Plot("PacMan evolutivo");
+        plot.showPlot(fitness);
     }
 }

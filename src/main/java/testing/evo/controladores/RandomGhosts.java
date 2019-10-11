@@ -1,9 +1,8 @@
-package Testing.Evo.Controladores;
+package testing.evo.controladores;
 
 import pacman.controllers.GhostController;
 import pacman.game.Constants;
 import pacman.game.Game;
-import pacman.game.internal.Ghost;
 
 import java.util.EnumMap;
 import java.util.Random;

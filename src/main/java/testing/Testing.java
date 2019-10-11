@@ -1,13 +1,12 @@
-package Testing;
+package testing;
 
-import Testing.Evo.Algoritmo.AlgoritmoGenetico;
-import Testing.Evo.Algoritmo.DecodGramatica;
-import Testing.Evo.Algoritmo.Gramatica;
-import Testing.Evo.Controladores.RandomGhosts;
-import Testing.Evo.Genetica.Individuo;
-import Testing.Evo.Genetica.Poblacion;
+import testing.evo.algoritmo.AlgoritmoGenetico;
+import testing.evo.algoritmo.DecodGramatica;
+import testing.evo.algoritmo.Gramatica;
+import testing.evo.controladores.RandomGhosts;
+import testing.evo.genetica.Individuo;
+import testing.evo.genetica.Poblacion;
 
-import es.ucm.fd.ici.c1920.practica0.RobertoPavon.Ghosts;
 import pacman.Executor;
 import pacman.controllers.GhostController;
 

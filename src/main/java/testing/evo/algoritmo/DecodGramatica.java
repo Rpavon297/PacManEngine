@@ -1,8 +1,4 @@
-package Testing.Evo.Algoritmo;
-
-import pacman.controllers.PacmanController;
-import pacman.game.Constants;
-import pacman.game.Game;
+package testing.evo.algoritmo;
 
 import java.util.List;
 
@@ -22,17 +18,10 @@ public class DecodGramatica {
     private final int NSTATEMENT = 2;
     private final int NCONDITION = 3;
     private final int NTERMINAL = 4;
-    //  CONSTANTES DEL JUEGO
-    private final int FLEE = 10;
-    private final int CHASE = 10;
-    private final int PPILL = 9;
-    private final Constants.DM DISTANCE = Constants.DM.PATH;
 
     private int wraps;
     private int maxWraps;
     private List<Double> codones;
-    private Constants.MOVE move;
-    private int last_position;
 
     public DecodGramatica(List<Double> lista) {
         wraps = 0;
@@ -42,13 +31,15 @@ public class DecodGramatica {
     }
 
     private String sangria(int i){
-        String sangria = "  ";
+        String sangria = " ";
+        String espaciado = " ";
         for(int j = 0; j < i; j++)
-            sangria += sangria;
+            sangria += espaciado;
         return sangria;
     }
 
     public void showTree() {
+        wraps = 0;
 
         conditionStatement(0, -1, true);
 
@@ -65,6 +56,8 @@ public class DecodGramatica {
                 case 0:
                     System.out.print(sangria(sangria) + "IF ");
                     if(condition(i)){
+                        //AUMENTAR i TRAS CONDITION
+                        i = checkWraps(i);
                         i = statement(i, sangria, operative);
                         i = checkWraps(i);
                         System.out.println(sangria(sangria) + "ELSE ");
@@ -76,8 +69,11 @@ public class DecodGramatica {
                 case 1:
                     System.out.print(sangria(sangria) + "IF ");
 
-                    if(condition(i))
+                    if(condition(i)){
+                        //AUMENTAR i TRAS CONDITION
+                        i = checkWraps(i);
                         i = statement(i, sangria,operative);
+                    }
 
                     System.out.println(sangria(sangria) + "END IF");
                     break;

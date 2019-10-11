@@ -1,12 +1,10 @@
-package Testing.Evo.Algoritmo;
+package testing.evo.algoritmo;
 
 import pacman.controllers.PacmanController;
 import pacman.game.Constants;
 import pacman.game.Game;
 
 import java.util.List;
-
-import static pacman.game.Constants.MOVE.*;
 
 /**
  * <condition-statement> ::= if( <condition> ) { <statement> } else { <statement> } | if( <condition> ) { <statement> }
@@ -62,21 +60,35 @@ public class Gramatica extends PacmanController {
             switch (instruction){
                 case 0:
                     if(condition(i)){
+                        //AUMENTAR i TRAS CONDITION
+                        i = checkWraps(i);
+
                         i = statement(i, operative);
                         i = checkWraps(i);
                         i = statement(i, false);
                     }else{
-                        statement(i, false);
+                        //AUMENTAR i TRAS CONDITION
                         i = checkWraps(i);
-                        statement(i, operative);
+
+                        i = statement(i, false);
+                        i = checkWraps(i);
+                        i = statement(i, operative);
                     }
 
                     break;
                 case 1:
-                    if(condition(i))
+                    if(condition(i)) {
+                        //AUMENTAR i TRAS CONDITION
+                        i = checkWraps(i);
+
                         i = statement(i, operative);
-                    else
-                        i = statement(i,false);
+                    }
+                    else {
+                        //AUMENTAR i TRAS CONDITION
+                        i = checkWraps(i);
+
+                        i = statement(i, false);
+                    }
 
                     break;
             }

@@ -1,4 +1,4 @@
-package Testing.Evo.Genetica;
+package testing.evo.genetica;
 
 import java.util.ArrayList;
 import java.util.List;
