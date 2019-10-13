@@ -1,5 +1,7 @@
 package testing.evo.algoritmo;
 
+import org.jfree.ui.RefineryUtilities;
+import testing.evo.controladores.GhostAggresive;
 import testing.evo.controladores.RandomGhosts;
 import testing.evo.data.Plot;
 import testing.evo.genetica.Gen;
@@ -20,7 +22,7 @@ public class AlgoritmoGenetico {
 
         Poblacion poblacion = new Poblacion();
         inicializa(poblacion, poblacionSize);
-        List<Individuo> generaciones = new ArrayList<>();
+        List<Double> generaciones = new ArrayList<>();
 
         int salvados = (int) Math.ceil(poblacion.getPoblacion().size() * percentElitismo);
         Poblacion elite = new Poblacion();
@@ -28,7 +30,7 @@ public class AlgoritmoGenetico {
         double fitnessTotal = actualizarPoblacion(poblacion, 0);
 
         for(int i = 0; i < numGeneraciones; i++){
-            generaciones.add(poblacion.getPoblacion().get(0));
+            generaciones.add(poblacion.getPoblacion().get(0).getFitness());
 
             //Guardar élite
             if(elitismo)
@@ -74,7 +76,7 @@ public class AlgoritmoGenetico {
 
             Gramatica gramatica = new Gramatica(lista);
 
-            Stats[] stats = executor.runExperiment(gramatica, new RandomGhosts(), 5, "Generación: " + gen);
+            Stats[] stats = executor.runExperiment(gramatica, new GhostAggresive(), 10, "Generación: " + gen);
 
             double fitness = FitnessFunction.getFitness(stats);
 
@@ -193,15 +195,14 @@ public class AlgoritmoGenetico {
 
     }
 
-    private void mostrarGrafica(List<Individuo> generaciones){
-        List<Double> fitness = new ArrayList<>();
+    private void mostrarGrafica(List<Double> fitness){
 
-        for(Individuo g : generaciones)
-            fitness.add(g.getFitness());
-
-        System.out.println("Mejor individuo con puntuacion: " + generaciones.get(0).getFitness());
+        System.out.println("Mejor individuo con puntuacion: " + fitness.get(0));
 
         Plot plot = new Plot("PacMan evolutivo");
         plot.showPlot(fitness);
+        plot.pack();
+        RefineryUtilities.centerFrameOnScreen(plot);
+        plot.setVisible(true);
     }
 }

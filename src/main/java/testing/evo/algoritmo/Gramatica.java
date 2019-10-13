@@ -7,7 +7,7 @@ import pacman.game.Game;
 import java.util.List;
 
 /**
- * <condition-statement> ::= if( <condition> ) { <statement> } else { <statement> } | if( <condition> ) { <statement> }
+ * <condition-statement> ::= if( <condition> ) { <statement> } else { <statement> }
  *
  * <statement> ::= <condition-statement> | <terminal>
  *
@@ -18,14 +18,14 @@ import java.util.List;
 
 public class Gramatica extends PacmanController {
     //  CONSTANTES GENETICAS
-    private final int NCSTATEMENT = 2;
+    private final int NCSTATEMENT = 1;
     private final int NSTATEMENT = 2;
     private final int NCONDITION = 3;
     private final int NTERMINAL = 4;
     //  CONSTANTES DEL JUEGO
     private final int FLEE = 30;
     private final int CHASE = 20;
-    private final double PPILL = Double.MAX_VALUE;
+    private final double PPILL = 29;
     private final Constants.DM DISTANCE = Constants.DM.PATH;
 
     private int wraps;

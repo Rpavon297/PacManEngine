@@ -3,7 +3,7 @@ package testing.evo.algoritmo;
 import java.util.List;
 
 /**
- * condition-statement ::= if( condition ) { statement } else { statement } | if( condition ) { statement }
+ * condition-statement ::= if( condition ) { statement } else { statement }
  *
  * statement ::= condition-statement | terminal
  *
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class DecodGramatica {
     //  CONSTANTES GENETICAS
-    private final int NCSTATEMENT = 2;
+    private final int NCSTATEMENT = 1;
     private final int NSTATEMENT = 2;
     private final int NCONDITION = 3;
     private final int NTERMINAL = 4;
