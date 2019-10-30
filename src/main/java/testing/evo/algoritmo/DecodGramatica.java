@@ -14,10 +14,10 @@ import java.util.List;
 
 public class DecodGramatica {
     //  CONSTANTES GENETICAS
-    private final int NCSTATEMENT = 1;
-    private final int NSTATEMENT = 2;
-    private final int NCONDITION = 3;
-    private final int NTERMINAL = 4;
+    private final int NCSTATEMENT = Gramatica.NCSTATEMENT;
+    private final int NSTATEMENT = Gramatica.NSTATEMENT;
+    private final int NCONDITION = Gramatica.NCONDITION;
+    private final int NTERMINAL = Gramatica.NTERMINAL;
 
     private int wraps;
     private int maxWraps;

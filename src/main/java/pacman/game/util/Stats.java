@@ -1,5 +1,8 @@
 package pacman.game.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Holds iteratively built statistical observations without storing the individual observations
  * <p>
@@ -12,6 +15,7 @@ public class Stats {
     private double sumsq;
     private double sd;
     private int n;
+    private List<Double> results;
 
     private double min = Double.POSITIVE_INFINITY;
     private double max = Double.NEGATIVE_INFINITY;
@@ -23,6 +27,7 @@ public class Stats {
 
     public Stats(String description) {
         this.description = description;
+        this.results = new ArrayList<>();
     }
 
     public Stats(long msTaken, String description, double max, double min, int n, double sumsq, double sum) {
@@ -33,6 +38,7 @@ public class Stats {
         this.n = n;
         this.sumsq = sumsq;
         this.sum = sum;
+        this.results = new ArrayList<>();
     }
 
     public static void main(String[] args) {
@@ -52,6 +58,9 @@ public class Stats {
         n++;
         sum += observation;
         sumsq += (observation * observation);
+
+        results.add(observation);
+
         if (observation < min) {
             min = observation;
         }
@@ -189,5 +198,60 @@ public class Stats {
         this.n = Integer.parseInt(parts[4]);
         this.sumsq = Double.parseDouble(parts[5]);
         this.sum = Double.parseDouble(parts[6]);
+    }
+
+    public List<Double> getResults(){
+        return results;
+    }
+
+    public double getNormalizedDataMean(int ncv){
+        if(min == max)
+            return 0.5;
+
+        List<Double> normalizedData = new ArrayList<>();
+        double total = 0;
+
+        for(double result : results){
+            total += (result - min)/(max - min);
+            normalizedData.add((result - min)/(max - min));
+        }
+
+        double errorSum = 0, mean = total/normalizedData.size();
+
+        for(double data :  normalizedData)
+            errorSum += (data - mean) * (data - mean);
+
+        double standardDeviation = Math.sqrt(errorSum/normalizedData.size());
+        double lower_limit = mean - (ncv*standardDeviation);
+        double upper_limit = mean + (ncv*standardDeviation);
+
+        List<Double> filteredData = new ArrayList<>();
+        for(double data : normalizedData) {
+            if (data > lower_limit && data < upper_limit)
+                filteredData.add(data);
+        }
+
+        double sumat = 0;
+        for(double data : filteredData)
+            sumat += data;
+
+        return sumat/filteredData.size();
+
+    }
+
+    public double getFilteredDataMean(int ncv){
+        return 0.0;
+    }
+
+    public List<Double> getNormalizedData() {
+        List<Double> normalizedData = new ArrayList<>();
+        double total = 0;
+
+        for(double result : results){
+            total += (result - min)/(max - min);
+            normalizedData.add((result - min)/(max - min));
+        }
+
+        return normalizedData;
     }
 }

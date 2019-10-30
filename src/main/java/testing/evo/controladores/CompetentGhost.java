@@ -101,14 +101,10 @@ public final class CompetentGhost extends GhostController {
 
                     }
                 }
-                else { //en caso contrario a todo, con un 90% voy a por ella, con un 10% hago un move aleatorio
-                    if(rnd.nextFloat() < 0.9) {
-                        moves.put(ghostType, this.getBestNextMove(game, game.getPacmanCurrentNodeIndex(), ghostType, true));
+                else {
 
-                    } else {
-                        moves.put(ghostType,MOVE.values()[rnd.nextInt(MOVE.values().length)]);
+                    moves.put(ghostType, this.getBestNextMove(game, game.getPacmanCurrentNodeIndex(), ghostType, true));
 
-                    }
                 }
 
             }

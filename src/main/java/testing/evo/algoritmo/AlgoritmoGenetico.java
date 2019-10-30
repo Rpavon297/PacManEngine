@@ -1,6 +1,7 @@
 package testing.evo.algoritmo;
 
 import org.jfree.ui.RefineryUtilities;
+import testing.evo.controladores.CompetentGhost;
 import testing.evo.controladores.GhostAggresive;
 import testing.evo.controladores.RandomGhosts;
 import testing.evo.data.Plot;
@@ -30,7 +31,7 @@ public class AlgoritmoGenetico {
         double fitnessTotal = actualizarPoblacion(poblacion, 0);
 
         for(int i = 0; i < numGeneraciones; i++){
-            generaciones.add(poblacion.getPoblacion().get(0).getFitness());
+            generaciones.add(fitnessTotal/poblacionSize);
 
             //Guardar élite
             if(elitismo)
@@ -58,7 +59,7 @@ public class AlgoritmoGenetico {
         for(int i = 0; i < poblacionSize; i++){
             List<Gen> genes = new ArrayList<>();
 
-            for(int j = 0; j < 20; j++){
+            for(int j = 0; j < 50; j++){
                 genes.add(new Gen(1));
                 genes.get(j).randomize(0,256);
             }
@@ -75,8 +76,13 @@ public class AlgoritmoGenetico {
             List<Double> lista = ind.getFenotipo();
 
             Gramatica gramatica = new Gramatica(lista);
+            Stats[] stats;
 
-            Stats[] stats = executor.runExperiment(gramatica, new GhostAggresive(), 10, "Generación: " + gen);
+            //Primeras 20 generaciones, lo entrenamos en "modo fácil"
+            if(gen <= 20)
+                stats = executor.runExperiment(gramatica, new RandomGhosts(), 300, "Generación: " + gen);
+            else
+                stats = executor.runExperiment(gramatica, new GhostAggresive(), 300, "Generación: " + gen);
 
             double fitness = FitnessFunction.getFitness(stats);
 
